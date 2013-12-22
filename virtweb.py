@@ -73,13 +73,13 @@ def get_domain(uuid):
     domain['uuid'] = domain['object'].UUIDString()
     domain['status'] = "running"
     domain['id'] = domain['object'].ID()
-    dom = minidom.parseString(domain['object'].XMLDesc())
-    domain['memory'] = int(dom.getElementsByTagName("memory")[0].firstChild.wholeText)/1000
-    domain['current_memory'] = int(dom.getElementsByTagName("currentMemory")[0].firstChild.wholeText)/1000
-    domain['vcpu'] = int(dom.getElementsByTagName("vcpu")[0].firstChild.wholeText)
+    domain['dom'] = minidom.parseString(domain['object'].XMLDesc())
+    domain['memory'] = int(domain['dom'].getElementsByTagName("memory")[0].firstChild.wholeText)/1000
+    domain['current_memory'] = int(domain['dom'].getElementsByTagName("currentMemory")[0].firstChild.wholeText)/1000
+    domain['vcpu'] = int(domain['dom'].getElementsByTagName("vcpu")[0].firstChild.wholeText)
     domain['disks'] = []
     domain['cdroms'] = []
-    disks = dom.getElementsByTagName("disk")
+    disks = domain['dom'].getElementsByTagName("disk")
     for disk_xml in disks:
         disk = {'disk': disk_xml, 'file': None}
         source = disk_xml.getElementsByTagName('source')
@@ -130,16 +130,28 @@ def mount_iso(uuid, iso):
     domain = get_domain(uuid)
     iso = base64.b64decode(iso)
     disk = domain['cdroms'][0]['disk']
-    if domain['cdroms'][0]['file']:
-        if iso == '---':
-            disk.removeChild(disk.getElementsByTagName('source')[0])
-        else:
-            disk.getElementsByTagName('source')[0].setAttribute('file',iso);
-    elif iso != '---':
-        source = minidom.Document().createElement('source')
-        source.setAttribute('file', iso)
-        disk.appendChild(source)
-    domain['object'].attachDevice(disk.toxml())
+    if domain['status'] != 'running':
+        if domain['cdroms'][0]['file']:
+            if iso == '---':
+                disk.removeChild(disk.getElementsByTagName('source')[0])
+            else:
+                disk.getElementsByTagName('source')[0].setAttribute('file',iso);
+        elif iso != '---':
+            source = minidom.Document().createElement('source')
+            source.setAttribute('file', iso)
+        domain['object'].undefine()
+        conn.defineXML(domain['dom'].toxml())
+    else:
+        if domain['cdroms'][0]['file']:
+            if iso == '---':
+                disk.removeChild(disk.getElementsByTagName('source')[0])
+            else:
+                disk.getElementsByTagName('source')[0].setAttribute('file',iso);
+        elif iso != '---':
+            source = minidom.Document().createElement('source')
+            source.setAttribute('file', iso)
+            disk.appendChild(source)
+        domain['object'].attachDevice(disk.toxml())
     return disk.toxml()
 
 @app.route("/dom/<string:uuid>/edit/<string:name>/<int:vcpus>/<int:memory>")
