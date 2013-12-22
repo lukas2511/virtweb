@@ -74,16 +74,6 @@ def get_domain(uuid):
         domain['screenshot'] = {'mime': 'image/png', 'data': base64.b64encode(open("static/stopped.png","r").read())}
     return domain
 
-    dom = minidom.parseString(xmltext)
-    name_tag = dom.getElementsByTagName("name")[0]
-    name_tag.firstChild.replaceWholeText(name)
-    memory_tag = dom.getElementsByTagName("memory")[0]
-    memory_tag.firstChild.replaceWholeText(memory*1000)
-    current_memory_tag = dom.getElementsByTagName("currentMemory")[0]
-    current_memory_tag.firstChild.replaceWholeText(memory*100)
-    vcpu_tag = dom.getElementsByTagName("vcpu")[0]
-    vcpu_tag.firstChild.replaceWholeText(vcpus)
-
 def get_domains():
     get_conn()
     running_domains = []
