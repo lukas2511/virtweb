@@ -29,9 +29,22 @@ var keyqueue = []
 var keys = []
 var directinput = false;
 
+function undefine_dom() {
+    $.get('/dom/{{ domain.uuid }}/delete', function(data){
+        self.location.href = '/';
+    });
+}
+
 function change_cdrom(form) {
     iso = encode64(form.iso.value);
-    $.get('/dom/{{ domain.uuid }}/mount/' + iso, function(data){
+    $.get('/dom/{{ domain.uuid }}/mount_iso/' + iso, function(data){
+        self.location.href = '/dom/{{ domain.uuid }}';
+    });
+}
+
+function change_diskimage(form) {
+    diskimage = encode64(form.diskimage.value);
+    $.get('/dom/{{ domain.uuid }}/mount_diskimage/' + diskimage, function(data){
         self.location.href = '/dom/{{ domain.uuid }}';
     });
 }
@@ -147,6 +160,24 @@ $(document).keydown(function(e) {
         </div>
       </div>
     </form>
+    <form class="form-horizontal" role="form" onsubmit="change_diskimage(this); return false;">
+      <div class="form-group">
+        <label for="diskimage" class="col-sm-2 control-label">Diskimage</label>
+        <div class="col-sm-10">
+          <select name="diskimage" class="form-control">
+          <option>---</option>
+          {% for diskimage in diskimages %}
+            <option{% if diskimage == domain.disks[0].file %} selected="selected"{% endif %}>{{ diskimage }}</option>
+          {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-default">Mount</button>
+        </div>
+      </div>
+    </form>
 
     <h3>VM Settings</h3>
     <br />
@@ -173,6 +204,16 @@ $(document).keydown(function(e) {
         <div class="col-sm-offset-2 col-sm-10">
           <button type="submit" class="btn btn-default">Redefine<span style="color:red;">*</span></button><br />
           <span style="color:red;">* This will stop the machine and cancel all background jobs!<br />(Also there are no sanity checks. And your VM will get deleted if you do something wrong...)</span>
+        </div>
+      </div>
+    </form>
+
+    <h3 style="color:red">Danger Zone</h3>
+    <br />
+    <form class="form-horizontal" role="form" onsubmit="undefine_dom(); return false;">
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-danger">Undefine / Delete</button>
         </div>
       </div>
     </form>

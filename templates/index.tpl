@@ -2,7 +2,7 @@
 {% block head %}
 <style type="text/css">
 .domain {
-    height:300px;
+    height:250px;
 }
 </style>
 
