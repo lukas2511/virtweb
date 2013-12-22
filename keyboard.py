@@ -5,6 +5,7 @@ keycodes = {
      17:  29, # L_CTRL
      16:  42, # L_SHIFT
      18:  56, # L_ALT
+     27:   1, # ESCAPE
      32:  57, # space
      37: 105, # left
      38: 103, # up

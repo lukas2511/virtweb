@@ -139,6 +139,7 @@ def mount_iso(uuid, iso):
         elif iso != '---':
             source = minidom.Document().createElement('source')
             source.setAttribute('file', iso)
+            disk.appendChild(source)
         domain['object'].undefine()
         conn.defineXML(domain['dom'].toxml())
     else:
