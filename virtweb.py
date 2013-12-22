@@ -36,6 +36,17 @@ def get_isos():
             isos.append(iso.path())
     return isos
 
+def get_diskimages():
+    global conn
+    get_conn()
+    storage = conn.storagePoolLookupByName("default")
+    diskimages = []
+    for volume in storage.listVolumes():
+        if volume[-4:] == '.img':
+            diskimage = storage.storageVolLookupByName(volume)
+            diskimages.append(diskimage.path())
+    return diskimages
+
 def get_screenshot(domain,maxwidth=None,maxheight=None):
     get_conn()
     stream = conn.newStream(0)
@@ -124,7 +135,7 @@ def single_domain_json(uuid):
 #    dthandler = lambda obj: None if isinstance(obj, libvirt.virDomain)  or isinstance(obj, libvirt) else None
     return json.dumps(get_domain(uuid), default=dthandler)
 
-@app.route("/dom/<string:uuid>/mount/<string:iso>")
+@app.route("/dom/<string:uuid>/mount_iso/<string:iso>")
 def mount_iso(uuid, iso):
     global conn
     domain = get_domain(uuid)
@@ -153,7 +164,47 @@ def mount_iso(uuid, iso):
             source.setAttribute('file', iso)
             disk.appendChild(source)
         domain['object'].attachDevice(disk.toxml())
-    return disk.toxml()
+    return domain['dom'].toxml()
+
+@app.route("/dom/<string:uuid>/mount_diskimage/<string:diskimage>")
+def mount_diskimage(uuid, diskimage):
+    global conn
+    domain = get_domain(uuid)
+    diskimage = base64.b64decode(diskimage)
+    disk = domain['disks'][0]['disk']
+    if domain['status'] != 'running':
+        if domain['disks'][0]['file']:
+            if diskimage == '---':
+                disk.removeChild(disk.getElementsByTagName('source')[0])
+            else:
+                disk.getElementsByTagName('source')[0].setAttribute('file',diskimage);
+        elif diskimage != '---':
+            source = minidom.Document().createElement('source')
+            source.setAttribute('file', diskimage)
+            disk.appendChild(source)
+        domain['object'].undefine()
+        conn.defineXML(domain['dom'].toxml())
+    else:
+        if domain['disks'][0]['file']:
+            if diskimage == '---':
+                disk.removeChild(disk.getElementsByTagName('source')[0])
+            else:
+                disk.getElementsByTagName('source')[0].setAttribute('file',diskimage);
+        elif diskimage != '---':
+            source = minidom.Document().createElement('source')
+            source.setAttribute('file', diskimage)
+            disk.appendChild(source)
+        domain['object'].attachDevice(disk.toxml())
+    return domain['dom'].toxml()
+
+@app.route("/dom/<string:uuid>/delete")
+def domain_delete(uuid):
+    global conn
+    domain = get_domain(uuid)
+    if domain['status'] == 'running':
+        domain['object'].destroy()
+    domain['object'].undefine()
+    return "OK";
 
 @app.route("/dom/<string:uuid>/edit/<string:name>/<int:vcpus>/<int:memory>")
 def domain_save(uuid, name, vcpus, memory):
@@ -177,7 +228,7 @@ def domain_save(uuid, name, vcpus, memory):
 
 @app.route("/dom/<string:uuid>")
 def single_domain(uuid):
-    return render_template('single_dom.tpl', **{'domain': get_domain(uuid), 'isos': get_isos()})
+    return render_template('single_dom.tpl', **{'domain': get_domain(uuid), 'isos': get_isos(), 'diskimages': get_diskimages()})
 
 @app.route("/sendkeys/<string:uuid>/<int:modifier>/<string:keys_string>")
 def sendkeys(uuid, modifier, keys_string):
