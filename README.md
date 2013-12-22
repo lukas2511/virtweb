@@ -12,13 +12,14 @@ Current Features:
  - ["Auto-Type" of text (put it in a box, press send, it will do checks if it can send those characters and do so, useful for urls and stuff)](screenshots/autotype.png)
  - Turn machines on or off
  - [Change name, max. memory and number of vcpus of machines](screenshots/edit.png)
+ - [Mount/Unmount ISO-Images](screenshots/mountiso.png)
 
 Planned Features:
 
  - Show host statistics (Used memory, Free disk space, ...)
  - Basic Statistics (If possible, depends on the libvirt Python-API)
  - Create new virtual machines (install from ISO or preseed file/textbox, maybe with templates)
- - Manage storage (Disks, ISO-Images, etc.)
+ - Manage storage (Create/Remove/Attach/Dettach Disks)
 
 Known Bugs:
 
