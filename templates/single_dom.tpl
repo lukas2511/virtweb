@@ -101,12 +101,12 @@ $(document).keydown(function(e) {
 {% endblock %}
 {% block content %}
 <ul class="nav nav-tabs" id="myTab">
-  <li><a href="#control">Control</a></li>
+  <li class="active"><a href="#control">Control</a></li>
   <li><a href="#stats" onclick="if(directinput) toggle_directinput();">Stats</a></li>
-  <li class="active"><a href="#edit" onclick="if(directinput) toggle_directinput();">Edit</a></li>
+  <li><a href="#edit" onclick="if(directinput) toggle_directinput();">Edit</a></li>
 </ul>
 <div id='content' class="tab-content">
-  <div class="tab-pane" id="control">
+  <div class="tab-pane active" id="control">
     <div id="dom-{{ domain.uuid }}" class="domain">
       <h1>{{ domain.name }} ({{ domain.uuid }})</h1>
       <button class="power btn btn-sm btn-default" name="on" onclick="$.get('/power/{{ domain.uuid }}/' + this.name);">ON</button>
@@ -118,9 +118,9 @@ $(document).keydown(function(e) {
     </div>
   </div>
   <div class="tab-pane" id="stats">
-    test
+    todo
   </div>
-  <div class="tab-pane active" id="edit">
+  <div class="tab-pane" id="edit">
     <br />
     <form class="form-horizontal" role="form" onsubmit="redefine_dom(this); return false;">
       <div class="form-group">
