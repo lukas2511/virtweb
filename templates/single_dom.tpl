@@ -29,6 +29,13 @@ var keyqueue = []
 var keys = []
 var directinput = false;
 
+function change_cdrom(form) {
+    iso = encode64(form.iso.value);
+    $.get('/dom/{{ domain.uuid }}/mount/' + iso, function(data){
+        self.location.href = '/dom/{{ domain.uuid }}';
+    });
+}
+
 function redefine_dom(form) {
     name = form.name.value;
     memory = form.memory.value
@@ -101,12 +108,12 @@ $(document).keydown(function(e) {
 {% endblock %}
 {% block content %}
 <ul class="nav nav-tabs" id="myTab">
-  <li class="active"><a href="#control">Control</a></li>
+  <li><a href="#control">Control</a></li>
   <li><a href="#stats" onclick="if(directinput) toggle_directinput();">Stats</a></li>
-  <li><a href="#edit" onclick="if(directinput) toggle_directinput();">Edit</a></li>
+  <li class="active"><a href="#edit" onclick="if(directinput) toggle_directinput();">Edit</a></li>
 </ul>
 <div id='content' class="tab-content">
-  <div class="tab-pane active" id="control">
+  <div class="tab-pane" id="control">
     <div id="dom-{{ domain.uuid }}" class="domain">
       <h1>{{ domain.name }} ({{ domain.uuid }})</h1>
       <button class="power btn btn-sm btn-default" name="on" onclick="$.get('/power/{{ domain.uuid }}/' + this.name);">ON</button>
@@ -120,7 +127,28 @@ $(document).keydown(function(e) {
   <div class="tab-pane" id="stats">
     todo
   </div>
-  <div class="tab-pane" id="edit">
+  <div class="tab-pane active" id="edit">
+    <h3>Storage</h3>
+    <form class="form-horizontal" role="form" onsubmit="change_cdrom(this); return false;">
+      <div class="form-group">
+        <label for="iso" class="col-sm-2 control-label">ISO</label>
+        <div class="col-sm-10">
+          <select name="iso" class="form-control">
+          <option>---</option>
+          {% for iso in isos %}
+            <option{% if iso == domain.cdroms[0].file %} selected="selected"{% endif %}>{{ iso }}</option>
+          {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-default">Mount</button>
+        </div>
+      </div>
+    </form>
+
+    <h3>VM Settings</h3>
     <br />
     <form class="form-horizontal" role="form" onsubmit="redefine_dom(this); return false;">
       <div class="form-group">

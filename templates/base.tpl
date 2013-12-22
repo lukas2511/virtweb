@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="/static/js/keycodes.js"></script>
+  <script type="text/javascript" src="/static/js/base64.js"></script>
   <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
   {% block head %}{% endblock %}
